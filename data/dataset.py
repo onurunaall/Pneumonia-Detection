@@ -47,21 +47,23 @@ class PneumoniaDataset:
     def _process_labels(self):
         """Process labels to create binary pneumonia labels"""
         # Create binary pneumonia label
-        self.df['Pneumonia'] = self.df['Finding Labels'].str.contains(
-            'Pneumonia', case=False, na=False
-        ).astype(int)
+        self.df['Pneumonia'] = self.df['Finding Labels'].str.contains('Pneumonia', case=False, na=False).astype(int)
         
         # Extract other useful info
         self.df['Age'] = self.df['Patient Age'].str.extract('(\d+)').astype(float)
         self.df['Gender_Binary'] = (self.df['Patient Gender'] == 'M').astype(int)
         
         # Create image paths
-        self.df['Image_Path'] = self.df['Image Index'].apply(
-            lambda x: self.images_dir / x
-        )
+        def create_image_path(image_index):
+            return self.images_dir / image_index
+        
+        self.df['Image_Path'] = self.df['Image Index'].apply(create_image_path)
         
         # Verify files exist
-        self.df = self.df[self.df['Image_Path'].apply(lambda x: x.exists())]
+        def check_file_exists(path):
+            return path.exists()
+        
+        self.df = self.df[self.df['Image_Path'].apply(check_file_exists)]
         
         if self.balance_classes:
             self._balance_dataset()
@@ -94,23 +96,19 @@ class PneumoniaDataset:
         stratify_col = self.df['Pneumonia'] if stratify else None
         
         # First split: train+val / test
-        train_val_df, test_df = train_test_split(
-            self.df,
-            test_size=test_size,
-            stratify=stratify_col,
-            random_state=42
-        )
+        train_val_df, test_df = train_test_split(self.df,
+                                                 test_size=test_size,
+                                                 stratify=stratify_col,
+                                                 random_state=42)
         
         # Second split: train / val
         val_size_adjusted = val_size / (1 - test_size)
         stratify_col_train = train_val_df['Pneumonia'] if stratify else None
         
-        train_df, val_df = train_test_split(
-            train_val_df,
-            test_size=val_size_adjusted,
-            stratify=stratify_col_train,
-            random_state=42
-        )
+        train_df, val_df = train_test_split(train_val_df,
+                                            test_size=val_size_adjusted,
+                                            stratify=stratify_col_train,
+                                            random_state=42)
         
         # Create new dataset objects
         train_ds = PneumoniaDataset.__new__(PneumoniaDataset)
@@ -134,13 +132,11 @@ class PneumoniaDataset:
     
     def get_generator(self, batch_size: int = 32, shuffle: bool = True):
         """Get data generator for training/validation"""
-        return PneumoniaGenerator(
-            self.df,
-            self.preprocessor,
-            batch_size=batch_size,
-            shuffle=shuffle,
-            augmentor=self.augmentor
-        )
+        return PneumoniaGenerator(self.df,
+                                  self.preprocessor,
+                                  batch_size=batch_size,
+                                  shuffle=shuffle,
+                                  augmentor=self.augmentor)
 
 class PneumoniaGenerator(Sequence):
     """Keras Sequence generator for pneumonia dataset"""
