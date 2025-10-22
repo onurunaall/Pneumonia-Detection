@@ -78,8 +78,18 @@ class ModelEvaluator:
         return metrics
     
     def find_optimal_threshold(self, val_generator, metric: str = 'f1') -> float:
-        y_pred_proba = self.model.predict(val_generator, verbose=1)
-        y_true = val_generator.labels
+        # Collect predictions and labels
+        y_pred_proba_list = []
+        y_true_list = []
+        
+        for i in range(len(val_generator)):
+            X_batch, y_batch = val_generator[i]
+            preds = self.model.predict(X_batch, verbose=0)
+            y_pred_proba_list.extend(preds.flatten())
+            y_true_list.extend(y_batch)
+        
+        y_pred_proba = np.array(y_pred_proba_list)
+        y_true = np.array(y_true_list)
         
         if metric == 'f1':
             # Find threshold that maximizes F1
