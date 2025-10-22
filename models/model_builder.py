@@ -13,19 +13,7 @@ class ModelBuilder:
     }
     
     @classmethod
-    def create_model(cls,
-                     architecture: str = 'vgg16',
-                     **kwargs) -> BaseModel:
-        """
-        Create model based on architecture name
-        
-        Args:
-            architecture: Model architecture name
-            **kwargs: Arguments to pass to model constructor
-            
-        Returns:
-            Initialized model instance
-        """
+    def create_model(cls, architecture: str = 'vgg16', **kwargs) -> BaseModel:
         if architecture not in cls.SUPPORTED_ARCHITECTURES:
             raise ValueError(
                 f"Unknown architecture: {architecture}. "
@@ -37,15 +25,10 @@ class ModelBuilder:
     
     @classmethod
     def from_config(cls, config) -> BaseModel:
-        """Create model from configuration object"""
-        return cls.create_model(
-            architecture=config.model.architecture,
-            input_shape=(config.data.image_size[0], 
-                        config.data.image_size[1], 
-                        config.data.channels),
-            num_classes=config.model.num_classes,
-            pretrained=config.model.pretrained,
-            freeze_base=config.model.freeze_base,
-            unfreeze_layers=config.model.unfreeze_layers,
-            dropout_rate=config.model.dropout_rate
-        )
+        return cls.create_model(architecture=config.model.architecture,
+                                input_shape=(config.data.image_size[0], config.data.image_size[1], config.data.channels),
+                                num_classes=config.model.num_classes,
+                                pretrained=config.model.pretrained,
+                                freeze_base=config.model.freeze_base,
+                                unfreeze_layers=config.model.unfreeze_layers,
+                                dropout_rate=config.model.dropout_rate)
