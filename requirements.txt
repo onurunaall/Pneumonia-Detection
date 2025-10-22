@@ -5,7 +5,6 @@ scikit-learn>=1.0.0,<2.0.0
 
 # Deep Learning
 tensorflow>=2.10.0,<3.0.0
-keras>=2.10.0,<3.0.0
 
 # Image Processing
 pydicom>=2.3.0,<3.0.0
