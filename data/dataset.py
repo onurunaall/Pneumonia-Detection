@@ -157,6 +157,11 @@ class PneumoniaGenerator(Sequence):
         if self.shuffle:
             np.random.shuffle(self.indices)
     
+    @property
+    def labels(self):
+        """Get all labels in the correct order"""
+        return self.df.iloc[self.indices]['Pneumonia'].values
+    
     def __len__(self):
         """Number of batches per epoch"""
         return int(np.ceil(len(self.df) / self.batch_size))
