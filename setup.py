@@ -18,8 +18,6 @@ def read_requirements(filename):
 setup(
     name="pneumonia-detection",
     version="1.0.0",
-    author="Your Name",
-    author_email="your.email@example.com",
     description="Deep learning-based pneumonia detection from chest X-rays",
     long_description=long_description,
     long_description_content_type="text/markdown",
