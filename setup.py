@@ -21,12 +21,6 @@ setup(
     description="Deep learning-based pneumonia detection from chest X-rays",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/pneumonia-detection",
-    project_urls={
-        "Bug Tracker": "https://github.com/yourusername/pneumonia-detection/issues",
-        "Documentation": "https://pneumonia-detection.readthedocs.io",
-        "Source Code": "https://github.com/yourusername/pneumonia-detection",
-    },
     packages=find_packages(exclude=["tests", "tests.*", "notebooks", "scripts"]),
     classifiers=[
         "Development Status :: 4 - Beta",
