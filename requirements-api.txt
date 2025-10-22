@@ -1,0 +1,20 @@
+# API Dependencies
+-r requirements.txt
+
+# Web Framework
+fastapi>=0.95.0,<1.0.0
+uvicorn[standard]>=0.21.0,<1.0.0
+python-multipart>=0.0.6,<1.0.0
+
+# Validation
+pydantic>=1.10.0,<3.0.0
+
+# API Documentation
+python-jose[cryptography]>=3.3.0,<4.0.0
+
+# HTTP Client (for testing)
+httpx>=0.23.0,<1.0.0
+requests>=2.28.0,<3.0.0
+
+# CORS
+python-cors>=1.0.0,<2.0.0
