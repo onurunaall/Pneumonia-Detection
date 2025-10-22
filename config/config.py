@@ -1,5 +1,5 @@
 from pathlib import Path
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Tuple, List
 
 @dataclass
@@ -32,6 +32,8 @@ class ModelConfig:
     freeze_base: bool = True
     unfreeze_layers: int = 0
 
+
+
 @dataclass
 class TrainingConfig:
     """Training configurations"""
@@ -42,7 +44,11 @@ class TrainingConfig:
     metrics: List[str] = None
     early_stopping_patience: int = 5
     reduce_lr_patience: int = 3
-    class_weights: bool = True  # Handle imbalance
+    class_weights: bool = True
+    
+    def __post_init__(self):
+        if self.metrics is None:
+            self.metrics = ['accuracy', 'AUC']
 
 @dataclass
 class InferenceConfig:
