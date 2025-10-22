@@ -8,19 +8,18 @@ version = "1.0.0"
 description = "Deep learning-based pneumonia detection from chest X-rays"
 readme = "README.md"
 requires-python = ">=3.9"
-license = {text = "MIT"}
+license = "MIT"
 authors = [
-    {name = "Your Name", email = "your.email@example.com"}
+    {name = "Onur Ünal", email = "onur.unal492@gmail.com"}
 ]
 maintainers = [
-    {name = "Your Name", email = "your.email@example.com"}
+    {name = "Onur Ünal", email = "onur.unal492@gmail.com"}
 ]
 keywords = ["pneumonia", "detection", "deep-learning", "medical-imaging", "xray"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Healthcare Industry",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.9",
@@ -45,6 +44,7 @@ dependencies = [
     "tqdm>=4.64.0,<5.0.0",
     "pyyaml>=6.0,<7.0",
     "python-dotenv>=0.20.0,<2.0.0",
+    "click>=8.0.0,<9.0.0",
 ]
 
 [project.optional-dependencies]
@@ -82,10 +82,10 @@ all = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/yourusername/pneumonia-detection"
+Homepage = "https://github.com/onurunaall/pneumonia-detection"
 Documentation = "https://pneumonia-detection.readthedocs.io"
-Repository = "https://github.com/yourusername/pneumonia-detection"
-"Bug Tracker" = "https://github.com/yourusername/pneumonia-detection/issues"
+Repository = "https://github.com/onurunaall/pneumonia-detection"
+"Bug Tracker" = "https://github.com/onurunaall/pneumonia-detection/issues"
 
 [project.scripts]
 pneumonia-train = "scripts.train:main"
@@ -93,7 +93,7 @@ pneumonia-predict = "scripts.predict:main"
 pneumonia-evaluate = "scripts.evaluate:main"
 
 [tool.setuptools]
-packages = ["config", "data", "models", "training", "evaluation", "inference", "utils"]
+packages = ["config", "data", "models", "training", "evaluation", "inference"]
 
 [tool.setuptools.package-data]
 "*" = ["*.yaml", "*.yml", "*.json"]
@@ -172,13 +172,12 @@ markers = [
 
 # Coverage configuration
 [tool.coverage.run]
-source = ["config", "data", "models", "training", "evaluation", "inference", "utils"]
+source = ["config", "data", "models", "training", "evaluation", "inference"]
 omit = [
     "*/tests/*",
     "*/test_*.py",
     "*/__pycache__/*",
     "*/site-packages/*",
-    "setup.py",
 ]
 
 [tool.coverage.report]

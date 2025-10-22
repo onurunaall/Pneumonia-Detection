@@ -14,7 +14,15 @@ from inference.predictor import PneumoniaPredictor
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-def main(args):
+def main():
+    parser = argparse.ArgumentParser(description='Predict pneumonia from X-ray')
+    parser.add_argument('input', type=str, help='Path to input DICOM file')
+    parser.add_argument('--model', type=str, required=True, help='Path to model file (.h5 for full model, .json for architecture)')
+    parser.add_argument('--weights', type=str, default=None, help='Path to model weights (only needed if --model is .json)')
+    parser.add_argument('--threshold', type=float, default=0.5, help='Classification threshold')
+    
+    args = parser.parse_args()
+    
     config = Config()
     
     preprocessor = ImagePreprocessor(target_size=config.data.image_size,
@@ -55,11 +63,4 @@ def main(args):
         sys.exit(1)
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Predict pneumonia from X-ray')
-    parser.add_argument('input', type=str, help='Path to input DICOM file')
-    parser.add_argument('--model', type=str, required=True, help='Path to model file (.h5 for full model, .json for architecture)')
-    parser.add_argument('--weights', type=str, default=None, help='Path to model weights (only needed if --model is .json)')
-    parser.add_argument('--threshold', type=float, default=0.5, help='Classification threshold')
-    
-    args = parser.parse_args()
-    main(args)
+    main()
