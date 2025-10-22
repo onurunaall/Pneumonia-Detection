@@ -1,0 +1,17 @@
+# .gitignore
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.pytest_cache/
+.coverage
+*.h5
+*.hdf5
+*.weights
+data/raw/
+data/processed/
+logs/
+checkpoints/
+.env
+.vscode/
+.idea/
