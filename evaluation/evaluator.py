@@ -12,9 +12,7 @@ class ModelEvaluator:
         self.model = model
         self.threshold = threshold
     
-    def evaluate(self, 
-                 test_generator,
-                 return_predictions: bool = False) -> Dict:
+    def evaluate(self, test_generator, return_predictions: bool = False) -> Dict:
         logger.info("Evaluating model...")
         
         # Get predictions
@@ -72,9 +70,7 @@ class ModelEvaluator:
         
         return metrics
     
-    def find_optimal_threshold(self,
-                              val_generator,
-                              metric: str = 'f1') -> float:
+    def find_optimal_threshold(self, val_generator, metric: str = 'f1') -> float:
         y_pred_proba = self.model.predict(val_generator, verbose=1)
         y_true = val_generator.labels
         
