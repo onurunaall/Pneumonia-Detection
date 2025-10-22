@@ -15,10 +15,8 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 def main(args):
-    """Main inference function"""
     config = Config()
     
-    # Create preprocessor and validator
     preprocessor = ImagePreprocessor(target_size=config.data.image_size,
                                      channels=config.data.channels,
                                      normalize=True)
