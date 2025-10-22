@@ -17,7 +17,22 @@ from training.trainer import Trainer
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-def main(args):
+def main():
+    parser = argparse.ArgumentParser(description='Train pneumonia detection model')
+    parser.add_argument('--data-dir', type=str, default='data/raw',
+                       help='Path to data directory')
+    parser.add_argument('--labels-file', type=str, default='sample_labels.csv',
+                       help='Labels CSV filename')
+    parser.add_argument('--images-dir', type=str, default='images',
+                       help='Images directory name (relative to data-dir)')
+    parser.add_argument('--epochs', type=int, help='Number of training epochs')
+    parser.add_argument('--batch-size', type=int, help='Batch size')
+    parser.add_argument('--learning-rate', type=float, help='Learning rate')
+    parser.add_argument('--use-clahe', action='store_true', 
+                       help='Use CLAHE for preprocessing')
+    
+    args = parser.parse_args()
+    
     config = Config()
     
     # Override config with command line arguments
@@ -29,16 +44,35 @@ def main(args):
         config.training.learning_rate = args.learning_rate
     
     logger.info("Starting pneumonia detection training")
-    logger.info(f"Configuration: {config}")
+    logger.info(f"Configuration: Epochs={config.training.epochs}, Batch size={config.data.batch_size}")
     
+    # Setup paths
+    data_dir = Path(args.data_dir)
+    labels_path = data_dir / args.labels_file
+    images_dir = data_dir / args.images_dir
+    
+    # Check if files exist
+    if not labels_path.exists():
+        logger.error(f"Labels file not found: {labels_path}")
+        logger.info("Run: python scripts/create_sample_data.py")
+        sys.exit(1)
+    
+    if not images_dir.exists():
+        logger.error(f"Images directory not found: {images_dir}")
+        logger.info("Run: python scripts/create_sample_data.py")
+        sys.exit(1)
+    
+    # Initialize components
     preprocessor = ImagePreprocessor(target_size=config.data.image_size,
                                      channels=config.data.channels,
                                      normalize=True,
                                      clahe=args.use_clahe)
     augmentor = PneumoniaAugmentor()
     
-    dataset = PneumoniaDataset(labels_path=config.paths.data_dir / 'sample_labels.csv',
-                               images_dir=config.paths.data_dir / 'images',
+    # Load dataset
+    logger.info(f"Loading dataset from {labels_path}")
+    dataset = PneumoniaDataset(labels_path=labels_path,
+                               images_dir=images_dir,
                                preprocessor=preprocessor,
                                augmentor=augmentor,
                                balance_classes=True)
@@ -51,13 +85,15 @@ def main(args):
     train_gen = train_ds.get_generator(batch_size=config.data.batch_size, shuffle=True)
     val_gen = val_ds.get_generator(batch_size=config.data.batch_size, shuffle=False)
     
+    # Build model
+    logger.info("Building model...")
     model = ModelBuilder.from_config(config)
     model_instance = model.build()
     
     model.compile(optimizer=config.training.optimizer,
                   learning_rate=config.training.learning_rate,
                   loss=config.training.loss_function,
-                  metrics=['accuracy', 'AUC'])
+                  metrics=config.training.metrics)
     
     model.summary()
     
@@ -68,6 +104,7 @@ def main(args):
         y_train = train_ds.df['Pneumonia'].values
         class_weights = trainer.calculate_class_weights(y_train)
     
+    # Train
     logger.info("Starting training...")
     history = trainer.train(train_generator=train_gen,
                             val_generator=val_gen,
@@ -90,12 +127,4 @@ def main(args):
     logger.info("Training completed successfully!")
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Train pneumonia detection model')
-    parser.add_argument('--epochs', type=int, help='Number of training epochs')
-    parser.add_argument('--batch-size', type=int, help='Batch size')
-    parser.add_argument('--learning-rate', type=float, help='Learning rate')
-    parser.add_argument('--use-clahe', action='store_true', 
-                       help='Use CLAHE for preprocessing')
-    
-    args = parser.parse_args()
-    main(args)
+    main()
