@@ -15,12 +15,19 @@ class ModelEvaluator:
     def evaluate(self, test_generator, return_predictions: bool = False) -> Dict:
         logger.info("Evaluating model...")
         
-        # Get predictions
-        y_pred_proba = self.model.predict(test_generator, verbose=1)
-        y_pred = (y_pred_proba > self.threshold).astype(int)
+        # Collect all predictions and labels
+        y_pred_proba_list = []
+        y_true_list = []
         
-        # Get true labels
-        y_true = test_generator.labels
+        for i in range(len(test_generator)):
+            X_batch, y_batch = test_generator[i]
+            preds = self.model.predict(X_batch, verbose=0)
+            y_pred_proba_list.extend(preds.flatten())
+            y_true_list.extend(y_batch)
+        
+        y_pred_proba = np.array(y_pred_proba_list)
+        y_true = np.array(y_true_list)
+        y_pred = (y_pred_proba > self.threshold).astype(int)
         
         # Calculate metrics
         metrics = {}
