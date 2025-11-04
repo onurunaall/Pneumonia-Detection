@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
+import sys
 import argparse
 import logging
 from pathlib import Path
-import sys
+from skimage import io
 
 sys.path.append(str(Path(__file__).parent.parent))
 
