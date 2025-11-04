@@ -58,8 +58,25 @@ def main():
             print(f"{'='*50}\n")
         else:
             print(f"Error: Could not process {input_path}")
+    elif input_path.suffix.lower() in ['.png', '.jpg', '.jpeg']:
+        # Handle regular image files (PNG/JPEG)
+        from skimage import io
+        
+        try:
+            img = io.imread(str(input_path))
+            prediction, confidence = predictor.predict_image(img)
+            
+            print(f"\n{'='*50}")
+            print(f"File: {input_path.name}")
+            print(f"Prediction: {prediction}")
+            print(f"Confidence: {confidence:.4f}")
+            print(f"{'='*50}\n")
+        except Exception as e:
+            logger.error(f"Error processing image: {e}")
+            print(f"Error: Could not process {input_path}")
+            sys.exit(1)
     else:
-        print(f"Error: Only DICOM files (.dcm) are supported")
+        print(f"Error: Unsupported file format. Supported: .dcm, .png, .jpg, .jpeg")
         sys.exit(1)
 
 if __name__ == '__main__':
