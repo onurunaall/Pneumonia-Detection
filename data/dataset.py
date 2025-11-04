@@ -55,7 +55,20 @@ class PneumoniaDataset:
         
         # Create image paths
         def create_image_path(image_index):
-            return self.images_dir / image_index
+            # First try direct path (for flat structure or sample data)
+            direct_path = self.images_dir / image_index
+            if direct_path.exists():
+                return direct_path
+            
+            # Search in subdirectories (for Kaggle NIH dataset structure)
+            # Dataset has structure: images_001/images/, images_002/images/, etc.
+            for subdir in self.images_dir.parent.glob('images_*/images'):
+                subdir_path = subdir / image_index
+                if subdir_path.exists():
+                    return subdir_path
+            
+            # If not found, return direct path (will be filtered out by exists check)
+            return direct_path
         
         self.df['Image_Path'] = self.df['Image Index'].apply(create_image_path)
         
