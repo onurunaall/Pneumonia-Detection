@@ -53,33 +53,49 @@ class PneumoniaDataset:
         self.df['Age'] = self.df['Patient Age'].str.extract('(\d+)').astype(float)
         self.df['Gender_Binary'] = (self.df['Patient Gender'] == 'M').astype(int)
         
-        # Create image paths
-        def create_image_path(image_index):
-            # First try direct path (for flat structure or sample data)
-            direct_path = self.images_dir / image_index
-            if direct_path.exists():
-                return direct_path
-            
-            # Search in subdirectories (for Kaggle NIH dataset structure)
-            # Dataset has structure: images_001/images/, images_002/images/, etc.
-            for subdir in self.images_dir.parent.glob('images_*/images'):
-                subdir_path = subdir / image_index
-                if subdir_path.exists():
-                    return subdir_path
-            
-            # If not found, return direct path (will be filtered out by exists check)
-            return direct_path
+        # Build image path mapping for efficient lookup
+        self._build_image_path_mapping()
         
-        self.df['Image_Path'] = self.df['Image Index'].apply(create_image_path)
+        # Create image paths using the mapping
+        self.df['Image_Path'] = self.df['Image Index'].map(self._image_path_map)
         
-        # Verify files exist
-        def check_file_exists(path):
-            return path.exists()
+        # Remove rows where image path is None (file not found)
+        original_count = len(self.df)
+        self.df = self.df.dropna(subset=['Image_Path'])
+        removed_count = original_count - len(self.df)
         
-        self.df = self.df[self.df['Image_Path'].apply(check_file_exists)]
+        if removed_count > 0:
+            logger.warning(f"Removed {removed_count} samples with missing image files")
         
         if self.balance_classes:
             self._balance_dataset()
+    
+    def _build_image_path_mapping(self):
+        """Build mapping of image filenames to their full paths"""
+        self._image_path_map = {}
+        
+        # Determine directories to search
+        search_dirs = []
+        
+        if self.images_dir.exists():
+            # Flat structure (e.g., all images in data/raw/images/)
+            search_dirs.append(self.images_dir)
+            logger.info(f"Searching for images in: {self.images_dir}")
+        else:
+            # Kaggle NIH dataset structure (images_001/images/, images_002/images/, etc.)
+            search_dirs = list(self.images_dir.parent.glob('images_*/images'))
+            if search_dirs:
+                logger.info(f"Found {len(search_dirs)} image subdirectories")
+            else:
+                logger.warning(f"No images found. Checked: {self.images_dir} and {self.images_dir.parent}/images_*/images")
+        
+        # Build mapping from all search directories
+        for search_dir in search_dirs:
+            for ext in ['*.png', '*.jpg', '*.jpeg', '*.dcm']:
+                for img_file in search_dir.glob(ext):
+                    self._image_path_map[img_file.name] = img_file
+        
+        logger.info(f"Mapped {len(self._image_path_map)} image files")
     
     def _balance_dataset(self):
         """Balance positive and negative samples"""
