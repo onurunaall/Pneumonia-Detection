@@ -78,7 +78,9 @@ class PneumoniaDataset:
         n_neg = len(neg_samples)
         
         if n_neg > n_pos:
-            neg_samples = neg_samples.sample(n=n_pos * 5, random_state=42)  # 1:5 ratio
+            # Sample up to 5x positive samples, but no more than available
+            n_sample = min(n_neg, n_pos * 5)
+            neg_samples = neg_samples.sample(n=n_sample, random_state=42)
             logger.info(f"Balanced dataset: {n_pos} pos, {len(neg_samples)} neg")
         
         self.df = pd.concat([pos_samples, neg_samples]).sample(frac=1, random_state=42)
